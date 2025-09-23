@@ -52,7 +52,7 @@ export default function Footer({ className }: FooterProps): React.JSX.Element {
         
         <div className={styles.footerBottom}>
           <p className={styles.copyright}>
-            &copy; 2024 TaskFlow. All rights reserved.
+            &copy; 2025 TaskFlow. All rights reserved.
           </p>
           <div className={styles.socialLinks}>
             <a 
