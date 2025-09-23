@@ -1,0 +1,11 @@
+### Performance Metrics Target
+
+**Lighthouse Scores**
+- Performance: 90+
+- Accessibility: 95+
+- Best Practices: 90+
+- SEO: 90+
+
+**Bundle Analysis**
+```bash
+npm run build:analyze
