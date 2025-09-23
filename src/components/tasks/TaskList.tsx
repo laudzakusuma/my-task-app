@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiPlus, FiFilter, FiPieChart } from 'react-icons/fi' // Changed FiBarChart3 to FiPieChart
-import { Button, Modal } from '@/components/ui'
+import { FiPlus, FiFilter, FiPieChart } from 'react-icons/fi'
+import { Button, Modal, LoadingSkeleton, useToast } from '@/components/ui'
+import PageTransition from '@/components/layout/PageTransition'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 import TaskFilters from './TaskFilters'
@@ -36,7 +37,9 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
   const [showDashboard, setShowDashboard] = useState(false)
   const [filters, setFilters] = useState(initialFilters)
   const [currentPage, setCurrentPage] = useState(1)
+  const [submitting, setSubmitting] = useState(false)
 
+  const { showToast } = useToast()
   const { data, loading, error, refetch } = useTasks({
     page: currentPage,
     limit: 12,
@@ -45,6 +48,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
 
   const handleCreateTask = async (taskData: TaskFormData) => {
     try {
+      setSubmitting(true)
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: {
@@ -56,11 +60,23 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
       if (response.ok) {
         setShowForm(false)
         refetch()
+        showToast({
+          type: 'success',
+          title: 'Task Created!',
+          message: 'Task berhasil dibuat dan ditambahkan ke daftar Anda.'
+        })
       } else {
         throw new Error('Failed to create task')
       }
     } catch (error) {
       console.error('Error creating task:', error)
+      showToast({
+        type: 'error',
+        title: 'Error Creating Task',
+        message: 'Gagal membuat task. Silakan coba lagi.'
+      })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -68,6 +84,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
     if (!editingTask) return
 
     try {
+      setSubmitting(true)
       const response = await fetch(`/api/tasks/${editingTask.id}`, {
         method: 'PUT',
         headers: {
@@ -79,11 +96,23 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
       if (response.ok) {
         setEditingTask(null)
         refetch()
+        showToast({
+          type: 'success',
+          title: 'Task Updated!',
+          message: 'Task berhasil diperbarui.'
+        })
       } else {
         throw new Error('Failed to update task')
       }
     } catch (error) {
       console.error('Error updating task:', error)
+      showToast({
+        type: 'error',
+        title: 'Error Updating Task',
+        message: 'Gagal memperbarui task. Silakan coba lagi.'
+      })
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -101,11 +130,21 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
 
       if (response.ok) {
         refetch()
+        showToast({
+          type: 'success',
+          title: task.completed ? 'Task Reopened' : 'Task Completed!',
+          message: task.completed ? 'Task ditandai sebagai belum selesai.' : 'Selamat! Task telah diselesaikan.'
+        })
       } else {
         throw new Error('Failed to toggle task completion')
       }
     } catch (error) {
       console.error('Error toggling task completion:', error)
+      showToast({
+        type: 'error',
+        title: 'Error',
+        message: 'Gagal mengubah status task.'
+      })
     }
   }
 
@@ -119,11 +158,21 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
 
       if (response.ok) {
         refetch()
+        showToast({
+          type: 'success',
+          title: 'Task Deleted',
+          message: 'Task berhasil dihapus dari daftar Anda.'
+        })
       } else {
         throw new Error('Failed to delete task')
       }
     } catch (error) {
       console.error('Error deleting task:', error)
+      showToast({
+        type: 'error',
+        title: 'Error Deleting Task',
+        message: 'Gagal menghapus task. Silakan coba lagi.'
+      })
     }
   }
 
@@ -134,184 +183,229 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
+    // Smooth scroll to top when changing pages
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   if (error) {
     return (
-      <div className={styles.error}>
-        <p>Error loading tasks: {error}</p>
-        <Button onClick={refetch}>Retry</Button>
-      </div>
+      <PageTransition>
+        <div className={styles.error}>
+          <p>Error loading tasks: {error}</p>
+          <Button onClick={refetch}>Retry</Button>
+        </div>
+      </PageTransition>
     )
   }
 
   return (
-    <div className={styles.taskList}>
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>Task Management</h1>
-          <p className={styles.subtitle}>
-            Kelola tugas-tugas Anda dengan efisien
-          </p>
-        </div>
-
-        <div className={styles.headerActions}>
-          <Button
-            variant="outline"
-            icon={<FiPieChart />}
-            onClick={() => setShowDashboard(!showDashboard)}
-          >
-            {showDashboard ? 'Hide Stats' : 'Show Stats'}
-          </Button>
-          
-          <Button
-            variant="outline"
-            icon={<FiFilter />}
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            Filter
-          </Button>
-          
-          <Button
-            variant="primary"
-            icon={<FiPlus />}
-            onClick={() => setShowForm(true)}
-          >
-            Tambah Task
-          </Button>
-        </div>
-      </div>
-
-      {/* Dashboard */}
-      <AnimatePresence>
-        {showDashboard && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <TaskDashboard />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Filters */}
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <TaskFilters
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Task Grid */}
-      {loading ? (
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
-          <p>Loading tasks...</p>
-        </div>
-      ) : data?.data.length === 0 ? (
-        <div className={styles.empty}>
-          <h3>Belum ada task</h3>
-          <p>Mulai dengan membuat task pertama Anda!</p>
-          <Button
-            variant="primary"
-            icon={<FiPlus />}
-            onClick={() => setShowForm(true)}
-          >
-            Buat Task
-          </Button>
-        </div>
-      ) : (
-        <motion.div
-          className={styles.grid}
-          layout
+    <PageTransition>
+      <div className={styles.taskList}>
+        {/* Header */}
+        <motion.div 
+          className={styles.header}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <AnimatePresence>
-            {data?.data.map((task) => (
-              <motion.div
-                key={task.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-              >
-                <TaskCard
-                  task={task}
-                  onEdit={setEditingTask}
-                  onDelete={handleDeleteTask}
-                  onToggleComplete={handleToggleComplete}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          <div className={styles.headerContent}>
+            <h1 className={styles.title}>Task Management</h1>
+            <p className={styles.subtitle}>
+              Kelola tugas-tugas Anda dengan efisien
+            </p>
+          </div>
+
+          <div className={styles.headerActions}>
+            <Button
+              variant="outline"
+              icon={<FiPieChart />}
+              onClick={() => setShowDashboard(!showDashboard)}
+            >
+              {showDashboard ? 'Hide Stats' : 'Show Stats'}
+            </Button>
+            
+            <Button
+              variant="outline"
+              icon={<FiFilter />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              Filter
+            </Button>
+            
+            <Button
+              variant="primary"
+              icon={<FiPlus />}
+              onClick={() => setShowForm(true)}
+            >
+              Tambah Task
+            </Button>
+          </div>
         </motion.div>
-      )}
 
-      {/* Pagination */}
-      {data && data.pagination.totalPages > 1 && (
-        <div className={styles.pagination}>
-          <Button
-            variant="outline"
-            disabled={!data.pagination.hasPrev}
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
-            Previous
-          </Button>
-          
-          <span className={styles.pageInfo}>
-            Page {data.pagination.page} of {data.pagination.totalPages}
-          </span>
-          
-          <Button
-            variant="outline"
-            disabled={!data.pagination.hasNext}
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+        {/* Dashboard */}
+        <AnimatePresence>
+          {showDashboard && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <TaskDashboard />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Create Task Modal */}
-      <Modal
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        title="Buat Task Baru"
-        size="md"
-      >
-        <TaskForm
-          onSubmit={handleCreateTask}
-          onCancel={() => setShowForm(false)}
-        />
-      </Modal>
+        {/* Filters */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <TaskFilters
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Edit Task Modal */}
-      <Modal
-        isOpen={!!editingTask}
-        onClose={() => setEditingTask(null)}
-        title="Edit Task"
-        size="md"
-      >
-        {editingTask && (
-          <TaskForm
-            task={editingTask}
-            onSubmit={handleUpdateTask}
-            onCancel={() => setEditingTask(null)}
-          />
+        {/* Loading State with Skeletons */}
+        {loading && (
+          <div className={styles.grid}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className={styles.skeletonCard}>
+                <LoadingSkeleton height="200px" className={styles.cardSkeleton} />
+              </div>
+            ))}
+          </div>
         )}
-      </Modal>
-    </div>
+
+        {/* Empty State */}
+        {!loading && data?.data.length === 0 && (
+          <motion.div 
+            className={styles.empty}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          >
+            <h3>Belum ada task</h3>
+            <p>Mulai dengan membuat task pertama Anda!</p>
+            <Button
+              variant="primary"
+              icon={<FiPlus />}
+              onClick={() => setShowForm(true)}
+            >
+              Buat Task
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Task Grid */}
+        {!loading && data && data.data.length > 0 && (
+          <motion.div
+            className={styles.grid}
+            layout
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <AnimatePresence mode="popLayout">
+              {data.data.map((task, index) => (
+                <motion.div
+                  key={task.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1, 
+                    y: 0,
+                    transition: { delay: index * 0.05 }
+                  }}
+                  exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                  transition={{ 
+                    duration: 0.3,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 15
+                  }}
+                >
+                  <TaskCard
+                    task={task}
+                    onEdit={setEditingTask}
+                    onDelete={handleDeleteTask}
+                    onToggleComplete={handleToggleComplete}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {/* Pagination */}
+        {data && data.pagination.totalPages > 1 && (
+          <motion.div 
+            className={styles.pagination}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            <Button
+              variant="outline"
+              disabled={!data.pagination.hasPrev}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              Previous
+            </Button>
+            
+            <span className={styles.pageInfo}>
+              Page {data.pagination.page} of {data.pagination.totalPages}
+            </span>
+            
+            <Button
+              variant="outline"
+              disabled={!data.pagination.hasNext}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Next
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Create Task Modal */}
+        <Modal
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          title="Buat Task Baru"
+          size="md"
+        >
+          <TaskForm
+            onSubmit={handleCreateTask}
+            onCancel={() => setShowForm(false)}
+            loading={submitting}
+          />
+        </Modal>
+
+        {/* Edit Task Modal */}
+        <Modal
+          isOpen={!!editingTask}
+          onClose={() => setEditingTask(null)}
+          title="Edit Task"
+          size="md"
+        >
+          {editingTask && (
+            <TaskForm
+              task={editingTask}
+              onSubmit={handleUpdateTask}
+              onCancel={() => setEditingTask(null)}
+              loading={submitting}
+            />
+          )}
+        </Modal>
+      </div>
+    </PageTransition>
   )
 }

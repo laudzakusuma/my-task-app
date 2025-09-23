@@ -1,0 +1,24 @@
+.spinner {
+  display: inline-block;
+}
+
+.ring {
+  border: 2px solid transparent;
+  border-radius: 50%;
+  border-top: 2px solid var(--color-accent);
+}
+
+.sm .ring {
+  width: 16px;
+  height: 16px;
+}
+
+.md .ring {
+  width: 24px;
+  height: 24px;
+}
+
+.lg .ring {
+  width: 32px;
+  height: 32px;
+}
