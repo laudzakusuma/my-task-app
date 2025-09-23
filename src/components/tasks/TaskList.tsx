@@ -63,7 +63,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
         showToast({
           type: 'success',
           title: 'Task Created!',
-          message: 'Task berhasil dibuat dan ditambahkan ke daftar Anda.'
+          message: 'Task successfully created and added to your list.'
         })
       } else {
         throw new Error('Failed to create task')
@@ -73,7 +73,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
       showToast({
         type: 'error',
         title: 'Error Creating Task',
-        message: 'Gagal membuat task. Silakan coba lagi.'
+        message: 'Failed to create task. Please try again.'
       })
     } finally {
       setSubmitting(false)
@@ -99,7 +99,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
         showToast({
           type: 'success',
           title: 'Task Updated!',
-          message: 'Task berhasil diperbarui.'
+          message: 'Task successfully updated.'
         })
       } else {
         throw new Error('Failed to update task')
@@ -109,7 +109,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
       showToast({
         type: 'error',
         title: 'Error Updating Task',
-        message: 'Gagal memperbarui task. Silakan coba lagi.'
+        message: 'Failed to update task. Please try again.'
       })
     } finally {
       setSubmitting(false)
@@ -133,7 +133,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
         showToast({
           type: 'success',
           title: task.completed ? 'Task Reopened' : 'Task Completed!',
-          message: task.completed ? 'Task ditandai sebagai belum selesai.' : 'Selamat! Task telah diselesaikan.'
+          message: task.completed ? 'Task marked as incomplete.' : 'Congratulations! Task has been completed.'
         })
       } else {
         throw new Error('Failed to toggle task completion')
@@ -143,13 +143,13 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
       showToast({
         type: 'error',
         title: 'Error',
-        message: 'Gagal mengubah status task.'
+        message: 'Failed to change task status.'
       })
     }
   }
 
   const handleDeleteTask = async (task: Task) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus task ini?')) return
+    if (!confirm('Are you sure you want to delete this task?')) return
 
     try {
       const response = await fetch(`/api/tasks/${task.id}`, {
@@ -161,7 +161,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
         showToast({
           type: 'success',
           title: 'Task Deleted',
-          message: 'Task berhasil dihapus dari daftar Anda.'
+          message: 'Task successfully deleted from your list.'
         })
       } else {
         throw new Error('Failed to delete task')
@@ -171,7 +171,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
       showToast({
         type: 'error',
         title: 'Error Deleting Task',
-        message: 'Gagal menghapus task. Silakan coba lagi.'
+        message: 'Failed to delete task. Please try again.'
       })
     }
   }
@@ -211,7 +211,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
           <div className={styles.headerContent}>
             <h1 className={styles.title}>Task Management</h1>
             <p className={styles.subtitle}>
-              Kelola tugas-tugas Anda dengan efisien
+              Efficiently manage your tasks and boost productivity
             </p>
           </div>
 
@@ -220,6 +220,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
               variant="outline"
               icon={<FiPieChart />}
               onClick={() => setShowDashboard(!showDashboard)}
+              className={styles.headerButton}
             >
               {showDashboard ? 'Hide Stats' : 'Show Stats'}
             </Button>
@@ -228,6 +229,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
               variant="outline"
               icon={<FiFilter />}
               onClick={() => setShowFilters(!showFilters)}
+              className={styles.headerButton}
             >
               Filter
             </Button>
@@ -236,8 +238,9 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
               variant="primary"
               icon={<FiPlus />}
               onClick={() => setShowForm(true)}
+              className={styles.addButton}
             >
-              Tambah Task
+              Add Task
             </Button>
           </div>
         </motion.div>
@@ -292,14 +295,14 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
           >
-            <h3>Belum ada task</h3>
-            <p>Mulai dengan membuat task pertama Anda!</p>
+            <h3>No tasks yet</h3>
+            <p>Start by creating your first task!</p>
             <Button
               variant="primary"
               icon={<FiPlus />}
               onClick={() => setShowForm(true)}
             >
-              Buat Task
+              Create Task
             </Button>
           </motion.div>
         )}
@@ -379,7 +382,7 @@ export default function TaskList({ initialFilters = {} }: TaskListProps): React.
         <Modal
           isOpen={showForm}
           onClose={() => setShowForm(false)}
-          title="Buat Task Baru"
+          title="Create New Task"
           size="md"
         >
           <TaskForm

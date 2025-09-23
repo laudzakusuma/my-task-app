@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { updateTaskSchema } from '@/lib/validations/task'
+import { taskUpdateSchema } from '@/lib/validations/task'
 import { z } from 'zod'
+
 
 interface RouteParams {
   params: {
@@ -50,71 +51,64 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params
     const body = await request.json()
-    
-    const validatedData = updateTaskSchema.parse({ ...body, id })
+    const { id } = params
 
-    // Check if task exists
-    const existingTask = await prisma.task.findUnique({
-      where: { id },
-    })
-
-    if (!existingTask) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Task not found',
-        },
-        { status: 404 }
-      )
+    // Normalize priority values
+    if (body.priority) {
+      body.priority = body.priority.toUpperCase()
+      const priorityMap: Record<string, string> = {
+        'RENDAH': 'LOW',
+        'SEDANG': 'MEDIUM', 
+        'TINGGI': 'HIGH'
+      }
+      body.priority = priorityMap[body.priority] || body.priority
     }
 
-    // Build update data object
-    const updateData: Record<string, any> = {}
-    
-    if (validatedData.title !== undefined) updateData.title = validatedData.title
-    if (validatedData.content !== undefined) updateData.content = validatedData.content
-    if (validatedData.completed !== undefined) updateData.completed = validatedData.completed
-    if (validatedData.priority !== undefined) updateData.priority = validatedData.priority
-    if (validatedData.category !== undefined) updateData.category = validatedData.category
-    if (validatedData.dueDate !== undefined) {
-      updateData.dueDate = validatedData.dueDate ? new Date(validatedData.dueDate) : null
+    // Handle dueDate conversion
+    if (body.dueDate !== undefined) {
+      if (body.dueDate === '' || body.dueDate === null) {
+        body.dueDate = null
+      } else {
+        body.dueDate = new Date(body.dueDate).toISOString()
+      }
     }
+
+    const validatedData = taskUpdateSchema.parse(body)
 
     const task = await prisma.task.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...(validatedData.title && { title: validatedData.title }),
+        ...(validatedData.content !== undefined && { content: validatedData.content }),
+        ...(validatedData.priority && { priority: validatedData.priority }),
+        ...(validatedData.category !== undefined && { category: validatedData.category }),
+        ...(validatedData.dueDate !== undefined && { 
+          dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null 
+        }),
+        ...(validatedData.completed !== undefined && { completed: validatedData.completed })
+      }
     })
 
     return NextResponse.json({
       success: true,
-      data: task,
-      message: 'Task updated successfully',
+      data: task
     })
-
   } catch (error) {
-    console.error(`PUT /api/tasks/${params.id} error:`, error)
+    console.error('Error updating task:', error)
     
-    if (error instanceof z.ZodError) {
+    if (error instanceof Error && 'issues' in error) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation failed',
-          details: error.errors,
-        },
+        { success: false, error: 'Validation failed', details: error },
         { status: 400 }
       )
     }
-
+    
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update task',
-      },
+      { success: false, error: 'Failed to update task' },
       { status: 500 }
     )
   }
@@ -122,42 +116,23 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: { id: string } }
 ) {
   try {
     const { id } = params
 
-    const existingTask = await prisma.task.findUnique({
-      where: { id },
-    })
-
-    if (!existingTask) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Task not found',
-        },
-        { status: 404 }
-      )
-    }
-
     await prisma.task.delete({
-      where: { id },
+      where: { id }
     })
 
     return NextResponse.json({
       success: true,
-      message: 'Task deleted successfully',
+      message: 'Task deleted successfully'
     })
-
   } catch (error) {
-    console.error(`DELETE /api/tasks/${params.id} error:`, error)
-    
+    console.error('Error deleting task:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete task',
-      },
+      { success: false, error: 'Failed to delete task' },
       { status: 500 }
     )
   }

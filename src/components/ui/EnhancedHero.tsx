@@ -18,7 +18,8 @@ export default function EnhancedHero({ onGetStarted }: EnhancedHeroProps) {
   return (
     <section className={styles.hero}>
       <VideoBackground 
-        src="/videos/background.mp4"
+        lightModeSrc="/videos/background.mp4"
+        darkModeSrc="/videos/background-night.mp4"
         overlay={true}
         muted={isMuted}
       >
@@ -36,7 +37,7 @@ export default function EnhancedHero({ onGetStarted }: EnhancedHeroProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                Transformasi Digital{' '}
+                Digital Transformation{' '}
                 <span className={styles.gradient}>TaskFlow</span>
               </motion.h1>
 
@@ -46,9 +47,9 @@ export default function EnhancedHero({ onGetStarted }: EnhancedHeroProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                Revolusi cara kerja tim modern dengan teknologi AI-powered 
-                yang mengintegrasikan produktivitas, kolaborasi, dan inovasi 
-                dalam satu platform yang powerful.
+                Revolutionize modern team workflows with AI-powered technology 
+                that seamlessly integrates productivity, collaboration, and innovation 
+                in one comprehensive platform.
               </motion.p>
 
               <motion.div
@@ -126,14 +127,24 @@ export default function EnhancedHero({ onGetStarted }: EnhancedHeroProps) {
           </div>
         </div>
 
-        {/* Audio Control */}
         <motion.button
           className={styles.audioControl}
           onClick={() => setIsMuted(!isMuted)}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          animate={{ 
+            backgroundColor: isMuted 
+              ? 'var(--glass-bg)' 
+              : 'var(--color-accent)'
+          }}
+          transition={{ duration: 0.3 }}
         >
-          {isMuted ? <FiVolumeX /> : <FiVolume2 />}
+          <motion.div
+            animate={{ rotate: isMuted ? 0 : 360 }}
+            transition={{ duration: 0.5 }}
+          >
+            {isMuted ? <FiVolumeX /> : <FiVolume2 />}
+          </motion.div>
         </motion.button>
       </VideoBackground>
     </section>

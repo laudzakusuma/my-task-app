@@ -1,0 +1,112 @@
+.themeSwitcher {
+  position: relative;
+}
+
+.themeGrid {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: center;
+  padding: var(--spacing-xs);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
+}
+
+.themeButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  &.active {
+    transform: scale(1.2);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border: 2px solid var(--color-accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.themeName {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  white-space: nowrap;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.themeButton:hover .themeName {
+  opacity: 1;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .themeGrid {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .themeButton {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .themeName {
+    bottom: -20px;
+    font-size: 10px;
+  }
+}
+
+// Dark mode adjustments
+[data-theme="dark"] .themeGrid,
+[data-theme="cyber"] .themeGrid {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+// Video theme specific styles
+[data-theme="video-custom"] .themeGrid {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(15px);
+}

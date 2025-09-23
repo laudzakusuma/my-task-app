@@ -22,6 +22,10 @@
 
 .textContent {
   max-width: 600px;
+  position: relative;
+  
+  // NO background/glass card - clean text only
+  padding: 0;
 }
 
 .title {
@@ -29,28 +33,70 @@
   font-weight: 900;
   line-height: 1.1;
   margin-bottom: var(--spacing-lg);
-  color: var(--color-text);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  
+  // White text dengan shadow untuk semua mode
+  color: #ffffff !important;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.6),
+    0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .gradient {
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
+  /* FORCE RESET ALL GRADIENT PROPERTIES */
+  background: none !important;
+  background-image: none !important;
+  background-clip: initial !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+  -webkit-text-stroke: initial !important;
+  
+  /* FORCE WHITE COLOR */
+  color: #ffffff !important;
+  
+  /* EXACT SAME SHADOW AS PARENT TITLE */
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 4px 8px rgba(0, 0, 0, 0.6),
+    0 8px 16px rgba(0, 0, 0, 0.4) !important;
+  
+  /* REMOVE ANY FILTERS */
+  filter: none !important;
+  -webkit-filter: none !important;
+  
+  /* ENSURE NO ANIMATION AFFECTS COLOR */
+  animation: none !important;
+  
+  [data-mode="dark"] & {
+    background: none !important;
+    background-image: none !important;
+    background-clip: initial !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    color: #ffffff !important;
+    filter: none !important;
+    text-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.9),
+      0 4px 12px rgba(0, 0, 0, 0.7) !important;
+  }
   
   &::after {
     content: '';
     position: absolute;
-    bottom: -4px;
+    bottom: -6px;
     left: 0;
     right: 0;
     height: 4px;
-    background: var(--color-accent);
+    background: #b17949;
     border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     animation: slideIn 1s ease-out 0.8s both;
   }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 @keyframes slideIn {
@@ -60,10 +106,22 @@
 
 .subtitle {
   font-size: var(--font-size-lg);
-  color: var(--color-text-muted);
   line-height: 1.7;
   margin-bottom: var(--spacing-2xl);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+  
+  // HAPUS semua background - plain white text only
+  color: #ffffff !important;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.6),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+  
+  // NO background, NO padding, NO border
+  background: none;
+  border: none;
+  padding: 0;
+  backdrop-filter: none;
 }
 
 .buttonGroup {
@@ -77,29 +135,42 @@
 }
 
 .primaryButton {
-  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-dark));
-  box-shadow: 0 10px 25px var(--glass-shadow);
+  background: linear-gradient(135deg, #ff6b6b, #ff8c00, #ffd700);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease-in-out infinite;
+  box-shadow: 
+    0 4px 12px rgba(255, 107, 107, 0.4),
+    0 8px 20px rgba(0, 0, 0, 0.3);
   border: none;
+  color: white !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   
   &:hover {
-    box-shadow: 0 15px 35px var(--glass-shadow);
-    transform: translateY(-3px);
+    transform: translateY(-2px);
+    box-shadow: 
+      0 6px 16px rgba(255, 107, 107, 0.5),
+      0 12px 24px rgba(0, 0, 0, 0.4);
   }
 }
 
 .secondaryButton {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  color: white !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   
   &:hover {
-    background: var(--color-accent);
-    color: white;
-    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 }
 
+// Dashboard preview styles (keep existing)
 .visualContent {
   display: flex;
   justify-content: center;
@@ -108,10 +179,17 @@
 .dashboardPreview {
   width: 100%;
   max-width: 400px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(15px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
   animation: float 6s ease-in-out infinite;
+  
+  [data-mode="dark"] & {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
 }
 
 @keyframes float {
@@ -125,12 +203,13 @@
   align-items: center;
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .previewTitle {
   font-weight: 600;
-  color: var(--color-text);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .previewStats {
@@ -138,7 +217,8 @@
   align-items: center;
   gap: var(--spacing-xs);
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  color: var(--color-accent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .statDot {
@@ -147,6 +227,7 @@
   background: var(--color-accent);
   border-radius: 50%;
   animation: pulse 2s infinite;
+  box-shadow: 0 0 4px var(--color-accent);
 }
 
 @keyframes pulse {
@@ -171,6 +252,7 @@
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   animation: growUp 1s ease-out forwards;
   transform-origin: bottom;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   
   &:nth-child(1) { animation-delay: 0.1s; }
   &:nth-child(2) { animation-delay: 0.2s; }
@@ -196,7 +278,7 @@
   gap: var(--spacing-md);
   padding: var(--spacing-sm);
   border-radius: var(--radius-md);
-  background: var(--glass-bg);
+  background: rgba(255, 255, 255, 0.1);
   animation: slideInLeft 0.8s ease-out forwards;
   
   &:nth-child(1) { animation-delay: 0.6s; }
@@ -220,6 +302,7 @@
   border-radius: 50%;
   background: var(--color-accent);
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .taskInfo {
@@ -228,10 +311,10 @@
 
 .taskName {
   height: 12px;
-  background: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-sm);
   margin-bottom: var(--spacing-xs);
-  opacity: 0.6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .taskProgress {
@@ -239,15 +322,15 @@
   background: var(--color-accent);
   border-radius: var(--radius-sm);
   width: 70%;
-  opacity: 0.8;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .audioControl {
   position: absolute;
   bottom: var(--spacing-xl);
   right: var(--spacing-xl);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10px);
   border-radius: 50%;
   width: 50px;
@@ -255,54 +338,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-text);
+  color: white;
   font-size: var(--font-size-lg);
   cursor: pointer;
   z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   
   &:hover {
     background: var(--color-accent);
     color: white;
+    transform: scale(1.1);
   }
 }
 
-[data-theme="video-custom"] {
-  .title {
-    color: var(--color-text);
-    text-shadow: 0 2px 8px rgba(58, 41, 34, 0.3);
-  }
-
-  .gradient {
-    background: var(--gradient-primary);
-    background-clip: text; // Add standard property first
-    -webkit-background-clip: text; // Keep webkit prefix for Safari
-    -webkit-text-fill-color: transparent;
-    
-    &::after {
-      background: var(--color-accent);
-    }
-  }
-
-  .dashboardPreview {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 12px 30px var(--glass-shadow);
-  }
-
-  .bar {
-    background: var(--gradient-primary);
-  }
-
-  .taskIcon {
-    background: var(--color-accent);
-  }
-
-  .audioControl {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    
-    &:hover {
-      background: var(--color-accent);
-    }
+.taskflowText {
+  // Exactly same as normal text - NO special styling
+  color: inherit;
+  text-shadow: inherit;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #b17949;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    animation: slideIn 1s ease-out 0.8s both;
   }
 }

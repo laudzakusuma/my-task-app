@@ -1,10 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { FiCheckSquare, FiMoon, FiSun } from 'react-icons/fi'
 import styles from './Header.module.scss'
-import ThemeSwitcher from './ThemeSwitcher'
 
 interface HeaderProps {
   className?: string
@@ -12,23 +11,36 @@ interface HeaderProps {
 
 export default function Header({ className }: HeaderProps): React.JSX.Element {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false)
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false)
 
   useEffect(() => {
-    // Check for saved theme preference or default to light mode
-    const savedTheme = localStorage.getItem('theme')
+    document.documentElement.setAttribute('data-theme', 'video-custom')
+    
+    const savedMode = localStorage.getItem('dark-mode')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    if (savedMode === 'dark' || (!savedMode && prefersDark)) {
       setIsDarkMode(true)
-      document.documentElement.setAttribute('data-theme', 'dark')
+      document.documentElement.setAttribute('data-mode', 'dark')
     }
   }, [])
 
-  const toggleTheme = (): void => {
-    const newTheme = isDarkMode ? 'light' : 'dark'
+  const toggleDarkMode = (): void => {
+    setIsTransitioning(true)
+    
+    // Add transition class to body for smooth color transitions
+    document.body.classList.add('mode-transitioning')
+    
+    const newMode = isDarkMode ? 'light' : 'dark'
     setIsDarkMode(!isDarkMode)
-    document.documentElement.setAttribute('data-theme', newTheme === 'dark' ? 'dark' : '')
-    localStorage.setItem('theme', newTheme)
+    document.documentElement.setAttribute('data-mode', newMode)
+    localStorage.setItem('dark-mode', newMode)
+
+    // Remove transition class and reset state after animation
+    setTimeout(() => {
+      document.body.classList.remove('mode-transitioning')
+      setIsTransitioning(false)
+    }, 1000)
   }
 
   return (
@@ -50,27 +62,54 @@ export default function Header({ className }: HeaderProps): React.JSX.Element {
           </motion.div>
 
           <motion.button
-            className={styles.themeToggle}
-            onClick={toggleTheme}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            className={styles.darkModeToggle}
+            onClick={toggleDarkMode}
+            disabled={isTransitioning}
+            whileHover={{ scale: isTransitioning ? 1 : 1.1 }}
+            whileTap={{ scale: isTransitioning ? 1 : 0.9 }}
+            animate={{
+              backgroundColor: isDarkMode 
+                ? 'rgba(240, 237, 233, 0.1)' 
+                : 'rgba(26, 15, 11, 0.1)'
+            }}
+            transition={{ duration: 0.5 }}
             aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            {isDarkMode ? <FiSun /> : <FiMoon />}
+            <AnimatePresence mode="wait">
+              {isDarkMode ? (
+                <motion.div
+                  key="sun"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FiSun />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="moon"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FiMoon />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* Loading indicator saat transition */}
+            {isTransitioning && (
+              <motion.div
+                className={styles.transitionRing}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+              />
+            )}
           </motion.button>
         </nav>
-      </div>
-      <div className={styles.headerControls}>
-        <ThemeSwitcher />
-        <motion.button
-          className={styles.themeToggle}
-          onClick={toggleTheme}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-        >
-          {isDarkMode ? <FiSun /> : <FiMoon />}
-        </motion.button>
       </div>
     </motion.header>
   )

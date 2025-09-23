@@ -1,82 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { createTaskSchema, getTasksSchema } from '@/lib/validations/task'
-import { ApiResponse, PaginatedTasks } from '@/lib/types/task'
-import { z } from 'zod'
+import { taskCreateSchema } from '@/lib/validations/task'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const params = Object.fromEntries(searchParams)
-    
-    const validatedParams = getTasksSchema.parse(params)
-    const { page, limit, search, category, priority, completed, sortBy, sortOrder } = validatedParams
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const search = searchParams.get('search') || ''
+    const priority = searchParams.get('priority') || ''
+    const completed = searchParams.get('completed')
+    const category = searchParams.get('category') || ''
 
-    // Build where clause with simple object
-    const where: Record<string, any> = {}
+    const skip = (page - 1) * limit
+
+    const where: any = {}
     
     if (search) {
       where.OR = [
-        { title: { contains: search } },
-        { content: { contains: search } },
+        { title: { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } }
       ]
-    }
-    
-    if (category) {
-      where.category = { contains: category }
     }
     
     if (priority) {
       where.priority = priority
     }
     
-    if (completed !== undefined) {
-      where.completed = completed
+    if (completed !== null && completed !== undefined) {
+      where.completed = completed === 'true'
+    }
+    
+    if (category) {
+      where.category = { contains: category, mode: 'insensitive' }
     }
 
-    // Calculate pagination
-    const skip = (page - 1) * limit
-
-    // Get total count
-    const total = await prisma.task.count({ where })
-
-    // Get tasks
-    const tasks = await prisma.task.findMany({
-      where,
-      orderBy: {
-        [sortBy]: sortOrder
-      },
-      skip,
-      take: limit,
-    })
+    const [tasks, total] = await Promise.all([
+      prisma.task.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      }),
+      prisma.task.count({ where })
+    ])
 
     const totalPages = Math.ceil(total / limit)
-
-    const response = {
-      data: tasks,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
-      },
-    }
+    const hasNext = page < totalPages
+    const hasPrev = page > 1
 
     return NextResponse.json({
       success: true,
-      data: response,
+      data: {
+        data: tasks,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext,
+          hasPrev
+        }
+      }
     })
-
   } catch (error) {
-    console.error('GET /api/tasks error:', error)
-    
+    console.error('Error fetching tasks:', error)
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch tasks',
-      },
+      { success: false, error: 'Failed to fetch tasks' },
       { status: 500 }
     )
   }
@@ -85,43 +75,57 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const validatedData = createTaskSchema.parse(body)
+    
+    // Normalize priority values
+    if (body.priority) {
+      body.priority = body.priority.toUpperCase()
+      // Convert Indonesian to English if needed
+      const priorityMap: Record<string, string> = {
+        'RENDAH': 'LOW',
+        'SEDANG': 'MEDIUM', 
+        'TINGGI': 'HIGH'
+      }
+      body.priority = priorityMap[body.priority] || body.priority
+    }
+
+    // Handle dueDate conversion
+    if (body.dueDate && body.dueDate !== '') {
+      // Convert date string to ISO format if needed
+      body.dueDate = new Date(body.dueDate).toISOString()
+    } else {
+      body.dueDate = undefined
+    }
+
+    const validatedData = taskCreateSchema.parse(body)
 
     const task = await prisma.task.create({
       data: {
         title: validatedData.title,
-        content: validatedData.content || null,
+        content: validatedData.content,
         priority: validatedData.priority,
-        category: validatedData.category || null,
+        category: validatedData.category,
         dueDate: validatedData.dueDate ? new Date(validatedData.dueDate) : null,
-      },
+        completed: validatedData.completed
+      }
     })
 
-    return NextResponse.json({
-      success: true,
-      data: task,
-      message: 'Task created successfully',
+    return NextResponse.json({ 
+      success: true, 
+      data: task 
     })
-
   } catch (error) {
-    console.error('POST /api/tasks error:', error)
+    console.error('Error creating task:', error)
     
-    if (error instanceof z.ZodError) {
+    if (error instanceof Error && 'issues' in error) {
+      // Zod validation error
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation failed',
-          details: error.errors,
-        },
+        { success: false, error: 'Validation failed', details: error },
         { status: 400 }
       )
     }
-
+    
     return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create task',
-      },
+      { success: false, error: 'Failed to create task' },
       { status: 500 }
     )
   }

@@ -1,25 +1,26 @@
 'use client'
 
-import React from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FiSave, FiX } from 'react-icons/fi'
 import { Button } from '@/components/ui'
-import { createTaskSchema } from '@/lib/validations/task'
 import { Task } from '@/lib/types/task'
-import { PRIORITY_OPTIONS, PRIORITY_LABELS } from '@/lib/constants/priority'
-import { z } from 'zod'
+import { TASK_PRIORITIES, PRIORITY_LABELS } from '@/lib/constants/task'
 import styles from './TaskForm.module.scss'
 
-// Define form data type based on schema
-type TaskFormData = z.infer<typeof createTaskSchema>
-
 interface TaskFormProps {
-  task?: Task | null
-  onSubmit: (data: TaskFormData) => Promise<void>
+  task?: Task
+  onSubmit: (data: TaskFormData) => void
   onCancel: () => void
   loading?: boolean
+}
+
+type TaskFormData = {
+  title: string
+  content?: string
+  priority: string
+  category?: string
+  dueDate?: string
 }
 
 export default function TaskForm({ 
@@ -27,141 +28,158 @@ export default function TaskForm({
   onSubmit, 
   onCancel, 
   loading = false 
-}: TaskFormProps): React.JSX.Element {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<TaskFormData>({
-    resolver: zodResolver(createTaskSchema),
-    defaultValues: {
-      title: task?.title || '',
-      content: task?.content || '',
-      priority: (task?.priority as any) || 'MEDIUM',
-      category: task?.category || '',
-      dueDate: task?.dueDate ? new Date(task.dueDate).toISOString().slice(0, 16) : undefined,
-    },
+}: TaskFormProps) {
+  const [formData, setFormData] = useState<TaskFormData>({
+    title: task?.title || '',
+    content: task?.content || '',
+    priority: task?.priority || 'MEDIUM',
+    category: task?.category || '',
+    dueDate: task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''
   })
 
-  const handleFormSubmit: SubmitHandler<TaskFormData> = async (data) => {
-    try {
-      await onSubmit(data)
-    } catch (error) {
-      console.error('Form submission error:', error)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Task title is required'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+
+    onSubmit(formData)
+  }
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }))
     }
   }
 
   return (
     <motion.form
       className={styles.taskForm}
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={handleSubmit}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className={styles.field}>
+      <div className={styles.formGroup}>
         <label htmlFor="title" className={styles.label}>
-          Judul Task *
+          Task Title *
         </label>
         <input
-          id="title"
           type="text"
+          id="title"
+          name="title"
+          value={formData.title}
+          onChange={handleInputChange}
           className={`${styles.input} ${errors.title ? styles.error : ''}`}
-          placeholder="Masukkan judul task..."
-          {...register('title')}
+          placeholder="Enter task title"
+          disabled={loading}
         />
-        {errors.title && (
-          <span className={styles.errorMessage}>{errors.title.message}</span>
-        )}
+        {errors.title && <span className={styles.errorText}>{errors.title}</span>}
       </div>
 
-      <div className={styles.field}>
+      <div className={styles.formGroup}>
         <label htmlFor="content" className={styles.label}>
-          Deskripsi
+          Description
         </label>
         <textarea
           id="content"
-          className={`${styles.textarea} ${errors.content ? styles.error : ''}`}
-          placeholder="Deskripsi task (opsional)..."
+          name="content"
+          value={formData.content}
+          onChange={handleInputChange}
+          className={styles.textarea}
+          placeholder="Enter task description"
           rows={3}
-          {...register('content')}
+          disabled={loading}
         />
-        {errors.content && (
-          <span className={styles.errorMessage}>{errors.content.message}</span>
-        )}
       </div>
 
-      <div className={styles.row}>
-        <div className={styles.field}>
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
           <label htmlFor="priority" className={styles.label}>
-            Prioritas
+            Priority
           </label>
           <select
             id="priority"
-            className={`${styles.select} ${errors.priority ? styles.error : ''}`}
-            {...register('priority')}
+            name="priority"
+            value={formData.priority}
+            onChange={handleInputChange}
+            className={styles.select}
+            disabled={loading}
           >
-            {PRIORITY_OPTIONS.map((priority) => (
-              <option key={priority} value={priority}>
-                {PRIORITY_LABELS[priority]}
-              </option>
-            ))}
+            <option value="LOW">{PRIORITY_LABELS.LOW}</option>
+            <option value="MEDIUM">{PRIORITY_LABELS.MEDIUM}</option>
+            <option value="HIGH">{PRIORITY_LABELS.HIGH}</option>
           </select>
-          {errors.priority && (
-            <span className={styles.errorMessage}>{errors.priority.message}</span>
-          )}
         </div>
 
-        <div className={styles.field}>
+        <div className={styles.formGroup}>
           <label htmlFor="category" className={styles.label}>
-            Kategori
+            Category
           </label>
           <input
-            id="category"
             type="text"
-            className={`${styles.input} ${errors.category ? styles.error : ''}`}
-            placeholder="e.g. Development, Design..."
-            {...register('category')}
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleInputChange}
+            className={styles.input}
+            placeholder="e.g. Development, Design"
+            disabled={loading}
           />
-          {errors.category && (
-            <span className={styles.errorMessage}>{errors.category.message}</span>
-          )}
         </div>
       </div>
 
-      <div className={styles.field}>
+      <div className={styles.formGroup}>
         <label htmlFor="dueDate" className={styles.label}>
-          Deadline
+          Due Date
         </label>
         <input
+          type="date"
           id="dueDate"
-          type="datetime-local"
-          className={`${styles.input} ${errors.dueDate ? styles.error : ''}`}
-          {...register('dueDate')}
+          name="dueDate"
+          value={formData.dueDate}
+          onChange={handleInputChange}
+          className={styles.input}
+          disabled={loading}
         />
-        {errors.dueDate && (
-          <span className={styles.errorMessage}>{errors.dueDate.message}</span>
-        )}
       </div>
 
-      <div className={styles.actions}>
+      <div className={styles.formActions}>
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          disabled={isSubmitting || loading}
+          disabled={loading}
+          icon={<FiX />}
         >
-          <FiX />
-          Batal
+          Cancel
         </Button>
+        
         <Button
           type="submit"
           variant="primary"
-          loading={isSubmitting || loading}
-          disabled={isSubmitting || loading}
+          loading={loading}
+          icon={<FiSave />}
         >
-          <FiSave />
-          {task ? 'Update Task' : 'Buat Task'}
+          {task ? 'Update Task' : 'Create Task'}
         </Button>
       </div>
     </motion.form>

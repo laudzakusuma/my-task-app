@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: 'TaskFlow - Elegant Task Management',
     description: 'Manage your tasks with style and simplicity',
     type: 'website',
-    locale: 'id_ID',
+    locale: 'en_US', // Changed from id_ID
   },
   twitter: {
     card: 'summary_large_image',

@@ -1,47 +1,30 @@
 import { z } from 'zod'
-import { PRIORITY_VALUES } from '@/lib/constants/priority'
 
-const prioritySchema = z.enum([
-  PRIORITY_VALUES.LOW,
-  PRIORITY_VALUES.MEDIUM,
-  PRIORITY_VALUES.HIGH,
-  PRIORITY_VALUES.URGENT,
-])
+// Task validation schemas
+export const taskCreateSchema = z.object({
+  title: z.string().min(1, 'Task title is required').max(255, 'Title too long'),
+  content: z.string().optional().nullable(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).default('MEDIUM'),
+  category: z.string().max(100, 'Category too long').optional().nullable(),
+  dueDate: z.string().optional().nullable(),
+  completed: z.boolean().default(false).optional()
+}).strict()
 
-export const createTaskSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
-  content: z.string().optional(),
-  priority: prioritySchema.default(PRIORITY_VALUES.MEDIUM),
-  category: z.string().optional(),
-  dueDate: z.string().optional(),
-})
+export const taskUpdateSchema = z.object({
+  title: z.string().min(1, 'Task title is required').max(255, 'Title too long').optional(),
+  content: z.string().optional().nullable(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
+  category: z.string().max(100, 'Category too long').optional().nullable(),
+  dueDate: z.string().optional().nullable(),
+  completed: z.boolean().optional()
+}).strict()
 
-export const updateTaskSchema = z.object({
-  id: z.string().cuid(),
-  title: z.string().min(1, 'Title is required').max(200, 'Title too long').optional(),
-  content: z.string().optional(),
-  completed: z.boolean().optional(),
-  priority: prioritySchema.optional(),
-  category: z.string().optional(),
-  dueDate: z.string().optional(),
-})
+// Type exports
+export type TaskCreateInput = z.infer<typeof taskCreateSchema>
+export type TaskUpdateInput = z.infer<typeof taskUpdateSchema>
 
-export const deleteTaskSchema = z.object({
-  id: z.string().cuid(),
-})
-
-export const getTasksSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10),
-  search: z.string().optional(),
-  category: z.string().optional(),
-  priority: prioritySchema.optional(),
-  completed: z.coerce.boolean().optional(),
-  sortBy: z.enum(['createdAt', 'updatedAt', 'dueDate', 'title', 'priority']).default('createdAt'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-})
-
-export type CreateTaskInput = z.infer<typeof createTaskSchema>
-export type UpdateTaskInput = z.infer<typeof updateTaskSchema>
-export type DeleteTaskInput = z.infer<typeof deleteTaskSchema>
-export type GetTasksInput = z.infer<typeof getTasksSchema>
+// Named exports for better compatibility
+export {
+  taskCreateSchema as TaskCreateSchema,
+  taskUpdateSchema as TaskUpdateSchema
+}

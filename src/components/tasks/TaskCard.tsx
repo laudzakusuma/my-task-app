@@ -2,18 +2,16 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { FiCalendar, FiEdit, FiTrash2, FiCheck, FiX } from 'react-icons/fi'
-import { format } from 'date-fns'
-import { Card, Button } from '@/components/ui'
+import { FiCalendar, FiEdit2, FiTrash2, FiCheck } from 'react-icons/fi'
 import { Task } from '@/lib/types/task'
-import { PRIORITY_LABELS, PRIORITY_COLORS } from '@/lib/constants/priority'
+import { PRIORITY_LABELS, PRIORITY_COLORS } from '@/lib/constants/task'
 import styles from './TaskCard.module.scss'
 
 interface TaskCardProps {
   task: Task
-  onEdit?: (task: Task) => void
-  onDelete?: (task: Task) => void
-  onToggleComplete?: (task: Task) => void
+  onEdit: (task: Task) => void
+  onDelete: (task: Task) => void
+  onToggleComplete: (task: Task) => void
 }
 
 export default function TaskCard({ 
@@ -21,99 +19,121 @@ export default function TaskCard({
   onEdit, 
   onDelete, 
   onToggleComplete 
-}: TaskCardProps): React.JSX.Element {
-  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !task.completed
+}: TaskCardProps) {
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }).format(new Date(date))
+  }
 
-  const handleToggleComplete = () => {
-    if (onToggleComplete) {
-      onToggleComplete(task)
+  const getPriorityLabel = (priority: string) => {
+    const normalizedPriority = priority.toUpperCase()
+    switch (normalizedPriority) {
+      case 'HIGH':
+      case 'TINGGI':
+        return PRIORITY_LABELS.HIGH
+      case 'MEDIUM':
+      case 'SEDANG':
+        return PRIORITY_LABELS.MEDIUM
+      case 'LOW':
+      case 'RENDAH':
+        return PRIORITY_LABELS.LOW
+      default:
+        return PRIORITY_LABELS.MEDIUM
     }
   }
 
-  const handleEdit = () => {
-    if (onEdit) {
-      onEdit(task)
-    }
-  }
-
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(task)
+  const getPriorityColor = (priority: string) => {
+    const normalizedPriority = priority.toUpperCase()
+    switch (normalizedPriority) {
+      case 'HIGH':
+      case 'TINGGI':
+        return PRIORITY_COLORS.HIGH
+      case 'MEDIUM':
+      case 'SEDANG':
+        return PRIORITY_COLORS.MEDIUM
+      case 'LOW':
+      case 'RENDAH':
+        return PRIORITY_COLORS.LOW
+      default:
+        return PRIORITY_COLORS.MEDIUM
     }
   }
 
   return (
-    <Card 
-      className={`${styles.taskCard} ${task.completed ? styles.completed : ''} ${isOverdue ? styles.overdue : ''}`}
-      whileHover={{ y: -2 }}
+    <motion.div
+      className={`${styles.taskCard} ${task.completed ? styles.completed : ''}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.2 }}
     >
-      <div className={styles.header}>
-        <div className={styles.titleSection}>
+      <div className={styles.cardHeader}>
+        <motion.button
+          className={`${styles.checkbox} ${task.completed ? styles.checked : ''}`}
+          onClick={() => onToggleComplete(task)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
+        >
+          {task.completed && <FiCheck />}
+        </motion.button>
+
+        <div className={styles.cardActions}>
           <motion.button
-            className={styles.checkButton}
-            onClick={handleToggleComplete}
+            className={styles.actionButton}
+            onClick={() => onEdit(task)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
+            aria-label="Edit task"
           >
-            {task.completed ? (
-              <FiCheck className={styles.checkIcon} />
-            ) : (
-              <div className={styles.emptyCheck} />
-            )}
+            <FiEdit2 />
           </motion.button>
           
-          <div className={styles.titleContent}>
-            <h3 className={styles.title}>{task.title}</h3>
-            {task.content && (
-              <p className={styles.content}>{task.content}</p>
-            )}
-          </div>
-        </div>
-
-        <div className={styles.actions}>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<FiEdit />}
-            onClick={handleEdit}
-            aria-label="Edit task"
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<FiTrash2 />}
-            onClick={handleDelete}
+          <motion.button
+            className={`${styles.actionButton} ${styles.deleteButton}`}
+            onClick={() => onDelete(task)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             aria-label="Delete task"
-          />
+          >
+            <FiTrash2 />
+          </motion.button>
         </div>
       </div>
 
-      <div className={styles.meta}>
-        <div className={styles.metaRow}>
+      <div className={styles.cardContent}>
+        <h3 className={styles.taskTitle}>{task.title}</h3>
+        
+        {task.content && (
+          <p className={styles.taskDescription}>{task.content}</p>
+        )}
+
+        <div className={styles.cardMeta}>
           <span 
-            className={styles.priority}
-            style={{ backgroundColor: PRIORITY_COLORS[task.priority as keyof typeof PRIORITY_COLORS] }}
+            className={styles.priorityBadge}
+            style={{ backgroundColor: getPriorityColor(task.priority) }}
           >
-            {PRIORITY_LABELS[task.priority as keyof typeof PRIORITY_LABELS]}
+            {getPriorityLabel(task.priority)}
           </span>
-          
+
           {task.category && (
-            <span className={styles.category}>{task.category}</span>
+            <span className={styles.categoryBadge}>
+              {task.category}
+            </span>
           )}
         </div>
 
         {task.dueDate && (
-          <div className={styles.metaRow}>
-            <div className={styles.dueDate}>
-              <FiCalendar className={styles.calendarIcon} />
-              <span className={isOverdue ? styles.overdueText : ''}>
-                {format(new Date(task.dueDate), 'dd MMM yyyy')}
-              </span>
-            </div>
+          <div className={styles.dueDate}>
+            <FiCalendar />
+            <span>{formatDate(task.dueDate)}</span>
           </div>
         )}
       </div>
-    </Card>
+    </motion.div>
   )
 }

@@ -16,7 +16,7 @@
   transform: translateX(-50%) translateY(-50%);
   z-index: -2;
   object-fit: cover;
-  filter: brightness(0.8) contrast(1.1); // Enhance video colors
+  filter: brightness(0.9) contrast(1.05);
 }
 
 .overlay {
@@ -25,26 +25,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    135deg,
-    rgba(58, 41, 34, 0.85) 0%,     // english-walnut
-    rgba(177, 121, 73, 0.3) 30%,   // santa-fe
-    rgba(173, 136, 104, 0.2) 70%,  // sandal
-    rgba(58, 41, 34, 0.9) 100%     // english-walnut
-  );
   z-index: -1;
-}
-
-// Alternative overlay sesuai theme
-[data-theme="video-custom"] .overlay {
-  background: linear-gradient(
-    135deg,
-    rgba(58, 41, 34, 0.8) 0%,
-    rgba(177, 121, 73, 0.2) 25%,
-    rgba(136, 143, 126, 0.1) 50%,
-    rgba(173, 136, 104, 0.3) 75%,
-    rgba(58, 41, 34, 0.85) 100%
-  );
 }
 
 .content {
@@ -54,4 +35,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.transitionOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transitionSpinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

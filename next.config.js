@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client']
-  },
   sassOptions: {
     includePaths: ['./src/styles'],
+    prependData: `@import "globals";`, // Optional: auto-import globals
   },
   images: {
     domains: ['localhost'],
@@ -16,14 +14,18 @@ const nextConfig = {
   httpAgentOptions: {
     keepAlive: true,
   },
-  // Production optimizations
-  ...(process.env.NODE_ENV === 'production' && {
-    compiler: {
-      removeConsole: {
-        exclude: ['error'],
-      },
-    },
-  }),
+  // Remove experimental options that cause warnings
+  webpack: (config, { isServer }) => {
+    // Suppress specific warnings
+    config.infrastructureLogging = {
+      level: 'error',
+    }
+    
+    // Reduce console output
+    config.stats = 'errors-warnings'
+    
+    return config
+  },
 }
 
 module.exports = nextConfig
