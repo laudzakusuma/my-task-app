@@ -12,47 +12,46 @@
   --header-accent-dark: #ad8868;
 
   // Background colors
-  --color-primary: #2d1f1a;        // Darker brown untuk better contrast
-  --color-background: #faf8f6;     // Warmer white background
+  --color-primary: #2d1f1a;
+  --color-background: #faf8f6;
   --color-surface: #ffffff;        
-  --color-surface-muted: #f0ede9;  // Warm muted surface
+  --color-surface-muted: #f0ede9;
   
   // Text colors dengan contrast tinggi
-  --color-text: #1a0f0b;           // Very dark brown untuk readability
-  --color-text-muted: #4a3429;     // Medium dark brown
-  --color-text-accent: #2d1f1a;    // Dark brown untuk accent text
+  --color-text: #1a0f0b;
+  --color-text-muted: #4a3429;
+  --color-text-accent: #2d1f1a;
   
   // Accent colors
-  --color-accent: #b17949;         // santa-fe
-  --color-accent-light: #d4a574;   // Lighter version untuk hover
-  --color-accent-dark: #8b5a35;    // Darker version
+  --color-accent: #b17949;
+  --color-accent-light: #d4a574;
+  --color-accent-dark: #8b5a35;
   
   // UI state colors
-  --color-border: #d4c4b8;         // Warm border color
-  --color-success: #2d5016;        // Dark green untuk readability
-  --color-error: #8b2635;          // Dark red
+  --color-border: #d4c4b8;
+  --color-success: #2d5016;
+  --color-error: #8b2635;
   --color-warning: #8b5a35;        
 
-  // Glass effects dengan opacity rendah untuk readability
+  // Glass effects
   --glass-bg: rgba(177, 121, 73, 0.08);
   --glass-border: rgba(173, 136, 104, 0.25);
   --glass-shadow: rgba(124, 86, 64, 0.12);
 
-  // Text shadows untuk readability di atas video
+  // Text shadows
   --text-shadow-light: 0 1px 3px rgba(255, 255, 255, 0.8);
   --text-shadow-dark: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-// Dark mode dengan contrast tinggi
+// Dark mode
 :root[data-theme="video-custom"][data-mode="dark"] {
   --color-primary: #f0ede9;        
-  --color-background: #1a0f0b;     // Very dark background
+  --color-background: #1a0f0b;
   --color-surface: #2d1f1a;        
   --color-surface-muted: #4a3429;  
   
-  // High contrast text untuk dark mode
-  --color-text: #f5f2ef;           // Almost white
-  --color-text-muted: #d4c4b8;     // Light muted
+  --color-text: #f5f2ef;
+  --color-text-muted: #d4c4b8;
   --color-text-accent: #f0ede9;    
   
   --color-border: #4a3429;         

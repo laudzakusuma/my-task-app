@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+
+// Import all your global SCSS files here
+import '../styles/themes/video-harmony.scss'
+import '../styles/themes/video-custom.scss'
 import '../styles/globals.scss'
+
 import { ToastProvider, ErrorBoundary } from '@/components/ui'
 
 const inter = Inter({ 

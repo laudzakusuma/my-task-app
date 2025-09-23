@@ -2,7 +2,7 @@
 const nextConfig = {
   sassOptions: {
     includePaths: ['./src/styles'],
-    prependData: `@import "globals";`, // Optional: auto-import globals
+    // REMOVE the prependData line entirely
   },
   images: {
     domains: ['localhost'],
