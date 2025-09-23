@@ -1,0 +1,45 @@
+// Video-Based Custom Theme (Warm Earth Tones)
+:root[data-theme="video-custom"] {
+  // Mapping colors dari video ke semantic variables
+  --color-primary: #3a2922;        // english-walnut (dark brown untuk text)
+  --color-background: #f5f2f0;     // custom light (warm white)
+  --color-surface: #ffffff;        // pure white untuk cards
+  --color-surface-muted: #99a8af;  // hit-gray (light blue-gray)
+  --color-text: #3a2922;           // english-walnut (dark brown)
+  --color-text-muted: #5f402f;     // quincy (medium dark brown)
+  
+  // Accent colors dari video palette
+  --color-accent: #b17949;         // santa-fe (warm tan sebagai primary accent)
+  --color-accent-light: #ad8868;   // sandal (lighter tan)
+  --color-accent-dark: #7c5640;    // spicy-mix (darker brown)
+  
+  // UI state colors
+  --color-border: #888f7e;         // battleship-gray (muted green-gray)
+  --color-success: #7a8471;        // custom green yang selaras
+  --color-error: #c85a3a;          // warm red yang selaras
+  --color-warning: #b17949;        // santa-fe (reuse)
+
+  // Glass effects dengan warna video
+  --glass-bg: rgba(177, 121, 73, 0.1);      // santa-fe with opacity
+  --glass-border: rgba(173, 136, 104, 0.3); // sandal with opacity
+  --glass-shadow: rgba(124, 86, 64, 0.15);  // spicy-mix with opacity
+
+  // Gradient combinations
+  --gradient-primary: linear-gradient(135deg, #b17949, #ad8868);
+  --gradient-accent: linear-gradient(135deg, #7c5640, #946b53);
+  --gradient-surface: linear-gradient(135deg, #f5f2f0, #ffffff);
+}
+
+// Dark mode variant dengan video colors
+:root[data-theme="video-custom"][data-mode="dark"] {
+  --color-primary: #ad8868;        // sandal untuk text di dark
+  --color-background: #3a2922;     // english-walnut sebagai dark background
+  --color-surface: #5f402f;        // quincy untuk cards
+  --color-surface-muted: #646f78;  // nevada
+  --color-text: #ad8868;           // sandal (light untuk dark background)
+  --color-text-muted: #888f7e;     // battleship-gray
+  
+  --color-border: #646f78;         // nevada
+  --glass-bg: rgba(173, 136, 104, 0.15);
+  --glass-border: rgba(177, 121, 73, 0.25);
+}

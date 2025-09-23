@@ -59,3 +59,21 @@
   background-color: var(--color-surface);
   border-color: var(--color-border);
 }
+
+[data-theme="video-custom"] .card {
+  background: var(--color-surface);
+  border: 1px solid rgba(136, 143, 126, 0.3);
+  
+  &::before {
+    background: var(--gradient-primary);
+  }
+  
+  &.hoverable:hover {
+    box-shadow: 0 12px 25px rgba(124, 86, 64, 0.15);
+    border-color: var(--color-accent);
+  }
+
+  &.elevated {
+    box-shadow: 0 8px 20px rgba(95, 64, 47, 0.1);
+  }
+}

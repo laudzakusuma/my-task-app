@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FiCheckSquare, FiMoon, FiSun } from 'react-icons/fi'
 import styles from './Header.module.scss'
+import ThemeSwitcher from './ThemeSwitcher'
 
 interface HeaderProps {
   className?: string
@@ -58,6 +59,18 @@ export default function Header({ className }: HeaderProps): React.JSX.Element {
             {isDarkMode ? <FiSun /> : <FiMoon />}
           </motion.button>
         </nav>
+      </div>
+      <div className={styles.headerControls}>
+        <ThemeSwitcher />
+        <motion.button
+          className={styles.themeToggle}
+          onClick={toggleTheme}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDarkMode ? <FiSun /> : <FiMoon />}
+        </motion.button>
       </div>
     </motion.header>
   )

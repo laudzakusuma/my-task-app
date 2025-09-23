@@ -138,3 +138,37 @@
     transform: rotate(360deg);
   }
 }
+
+[data-theme="video-custom"] .button {
+  &.primary {
+    background: var(--gradient-primary);
+    box-shadow: 0 8px 20px rgba(177, 121, 73, 0.3);
+    
+    &:hover {
+      box-shadow: 0 12px 30px rgba(177, 121, 73, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.secondary {
+    background: rgba(173, 136, 104, 0.1);
+    border: 1px solid rgba(177, 121, 73, 0.3);
+    color: var(--color-text);
+    
+    &:hover {
+      background: var(--color-accent);
+      color: white;
+      border-color: var(--color-accent);
+    }
+  }
+
+  &.outline {
+    border: 2px solid var(--color-accent);
+    color: var(--color-accent);
+    
+    &:hover {
+      background: var(--color-accent);
+      color: white;
+    }
+  }
+}

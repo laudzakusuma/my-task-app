@@ -1,3 +1,7 @@
+@import './themes/video-harmony.scss';
+@import './themes/video-harmony.scss';
+@import './themes/video-custom.scss';
+
 :root {
   // Color palette - elegant dan tidak mencolok
   --color-primary: #0f1724;
@@ -124,4 +128,41 @@ button {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.glass-effect {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
+}
+
+// Video overlay gradients
+.video-overlay-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 30%,
+    rgba(0, 0, 0, 0.1) 70%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+}
+
+// Animated gradients for accents
+.animated-gradient {
+  background: linear-gradient(
+    -45deg,
+    var(--color-accent),
+    var(--color-accent-light),
+    var(--color-accent-dark),
+    var(--color-accent)
+  );
+  background-size: 400% 400%;
+  animation: gradientFlow 4s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

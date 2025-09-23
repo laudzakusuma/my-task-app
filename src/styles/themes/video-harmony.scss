@@ -1,0 +1,20 @@
+:root[data-theme="tech"] {
+  --color-primary: #0a0e1a;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #e2e8f0;
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-accent: #3b82f6;
+  --color-accent-light: #93c5fd;
+  --color-accent-dark: #1d4ed8;
+  --color-border: #cbd5e1;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  // Glass effects
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: rgba(59, 130, 246, 0.1);
+}
