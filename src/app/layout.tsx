@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import './globals.css'
+import '../styles/globals.scss'
+import { ToastProvider, ErrorBoundary } from '@/components/ui'
+import ResponsiveLayout from '@/components/layout/ResponsiveLayout'
 
 // Import all your global SCSS files here
 import '../styles/themes/video-harmony.scss'
 import '../styles/themes/video-custom.scss'
 import '../styles/globals.scss'
-
-import { ToastProvider, ErrorBoundary } from '@/components/ui'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -53,7 +55,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body suppressHydrationWarning={true}>
         <ErrorBoundary>
           <ToastProvider>
-            {children}
+            <ResponsiveLayout>
+              {children}
+            </ResponsiveLayout>
           </ToastProvider>
         </ErrorBoundary>
       </body>

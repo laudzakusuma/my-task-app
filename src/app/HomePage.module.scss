@@ -1,0 +1,149 @@
+// HomePage.module.scss
+
+.homePage {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  
+  // Prevent horizontal scroll
+  max-width: 100vw;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.heroSection {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  position: relative;
+  overflow: hidden;
+  
+  // Ensure hero takes full viewport on mobile
+  @media (max-width: 767px) {
+    min-height: calc(100vh - 60px); // Account for header height
+    min-height: calc(100svh - 60px);
+  }
+  
+  @media (min-width: 768px) {
+    min-height: calc(100vh - 80px);
+    min-height: calc(100svh - 80px);
+  }
+  
+  // Prevent content from being cut off
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.tasksSection {
+  width: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--color-background) 0%,
+    rgba(177, 121, 73, 0.03) 30%,
+    var(--color-background) 70%
+  );
+  
+  // Add separation between hero and tasks
+  margin-top: 0;
+  
+  @media (min-width: 768px) {
+    margin-top: 0;
+  }
+}
+
+.taskContainer {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+  
+  // Remove any conflicting padding/margin
+  > * {
+    max-width: 100%;
+  }
+}
+
+// Responsive container adjustments
+@media (max-width: 480px) {
+  .homePage {
+    // Ensure no horizontal overflow on small screens
+    overflow-x: hidden;
+    width: 100%;
+  }
+  
+  .heroSection {
+    // Adjust for very small screens
+    min-height: calc(100vh - 56px);
+    min-height: calc(100svh - 56px);
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .heroSection {
+    min-height: calc(100vh - 64px);
+    min-height: calc(100svh - 64px);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .heroSection {
+    min-height: calc(100vh - 72px);
+    min-height: calc(100svh - 72px);
+  }
+}
+
+// Landscape orientation adjustments for mobile
+@media (max-height: 500px) and (orientation: landscape) {
+  .heroSection {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+}
+
+// Print styles
+@media print {
+  .homePage {
+    min-height: auto;
+  }
+  
+  .heroSection {
+    min-height: auto;
+    height: auto;
+    page-break-inside: avoid;
+  }
+  
+  .tasksSection {
+    page-break-before: always;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .homePage {
+    background: var(--color-background);
+  }
+  
+  .tasksSection {
+    background: var(--color-background);
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .heroSection,
+  .tasksSection {
+    scroll-behavior: auto;
+  }
+}

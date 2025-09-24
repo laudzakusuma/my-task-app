@@ -1,0 +1,397 @@
+// ResponsiveLayout.module.scss
+
+.layout {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  
+  // Smooth transitions for layout changes
+  transition: all var(--transition-normal);
+}
+
+// Max width variants
+.maxWidthSm {
+  max-width: 640px;
+}
+
+.maxWidthMd {
+  max-width: 768px;
+}
+
+.maxWidthLg {
+  max-width: 1024px;
+}
+
+.maxWidthXl {
+  max-width: 1280px;
+}
+
+.maxWidth2xl {
+  max-width: 1536px;
+}
+
+.maxWidthFull {
+  max-width: none;
+}
+
+// Centering
+.centered {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// Padding variants
+.withPadding {
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+  
+  @media (min-width: 768px) {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+  }
+  
+  @media (min-width: 1024px) {
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+  }
+  
+  @media (min-width: 1280px) {
+    padding-left: var(--spacing-2xl);
+    padding-right: var(--spacing-2xl);
+  }
+}
+
+// Responsive Grid
+.responsiveGrid {
+  width: 100%;
+  
+  // Ensure grid items don't overflow
+  > * {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+}
+
+// Responsive Image
+.responsiveImage {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  
+  // Improve loading experience
+  &[loading="lazy"] {
+    opacity: 0;
+    animation: fadeIn 0.3s ease-in-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+// Responsive Text
+.responsiveText {
+  line-height: 1.6;
+  word-break: break-word;
+  hyphens: auto;
+  
+  // Improve text rendering
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  // Responsive headings
+  &.heading {
+    line-height: 1.2;
+    font-weight: 700;
+  }
+}
+
+// Container variants for specific use cases
+.pageContainer {
+  @extend .layout;
+  @extend .maxWidthXl;
+  @extend .centered;
+  @extend .withPadding;
+  
+  padding-top: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  
+  @media (min-width: 768px) {
+    padding-top: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+  }
+}
+
+.sectionContainer {
+  @extend .layout;
+  @extend .maxWidthLg;
+  @extend .centered;
+  @extend .withPadding;
+  
+  padding-top: var(--spacing-2xl);
+  padding-bottom: var(--spacing-2xl);
+  
+  @media (min-width: 768px) {
+    padding-top: var(--spacing-3xl);
+    padding-bottom: var(--spacing-3xl);
+  }
+}
+
+.contentContainer {
+  @extend .layout;
+  @extend .maxWidthMd;
+  @extend .centered;
+  @extend .withPadding;
+}
+
+// Flexible layouts
+.flexContainer {
+  display: flex;
+  gap: var(--spacing-md);
+  
+  @media (min-width: 768px) {
+    gap: var(--spacing-lg);
+  }
+  
+  @media (min-width: 1024px) {
+    gap: var(--spacing-xl);
+  }
+  
+  // Responsive flex direction
+  &.stackMobile {
+    flex-direction: column;
+    
+    @media (min-width: 768px) {
+      flex-direction: row;
+    }
+  }
+  
+  &.stackTablet {
+    flex-direction: column;
+    
+    @media (min-width: 1024px) {
+      flex-direction: row;
+    }
+  }
+}
+
+// Responsive spacing utilities
+.spacing {
+  // Responsive margins
+  &.marginTopSm { margin-top: var(--spacing-sm); }
+  &.marginTopMd { margin-top: var(--spacing-md); }
+  &.marginTopLg { margin-top: var(--spacing-lg); }
+  &.marginTopXl { margin-top: var(--spacing-xl); }
+  &.marginTop2xl { margin-top: var(--spacing-2xl); }
+  
+  &.marginBottomSm { margin-bottom: var(--spacing-sm); }
+  &.marginBottomMd { margin-bottom: var(--spacing-md); }
+  &.marginBottomLg { margin-bottom: var(--spacing-lg); }
+  &.marginBottomXl { margin-bottom: var(--spacing-xl); }
+  &.marginBottom2xl { margin-bottom: var(--spacing-2xl); }
+  
+  // Responsive paddings
+  &.paddingTopSm { padding-top: var(--spacing-sm); }
+  &.paddingTopMd { padding-top: var(--spacing-md); }
+  &.paddingTopLg { padding-top: var(--spacing-lg); }
+  &.paddingTopXl { padding-top: var(--spacing-xl); }
+  &.paddingTop2xl { padding-top: var(--spacing-2xl); }
+  
+  &.paddingBottomSm { padding-bottom: var(--spacing-sm); }
+  &.paddingBottomMd { padding-bottom: var(--spacing-md); }
+  &.paddingBottomLg { padding-bottom: var(--spacing-lg); }
+  &.paddingBottomXl { padding-bottom: var(--spacing-xl); }
+  &.paddingBottom2xl { padding-bottom: var(--spacing-2xl); }
+}
+
+// Aspect ratio containers
+.aspectRatio {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    display: block;
+    width: 100%;
+  }
+  
+  > * {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  &.ratio1to1::before { padding-bottom: 100%; }
+  &.ratio4to3::before { padding-bottom: 75%; }
+  &.ratio16to9::before { padding-bottom: 56.25%; }
+  &.ratio3to2::before { padding-bottom: 66.67%; }
+}
+
+// Responsive visibility utilities
+.hideMobile {
+  @media (max-width: 767px) {
+    display: none !important;
+  }
+}
+
+.hideTablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    display: none !important;
+  }
+}
+
+.hideDesktop {
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    display: none !important;
+  }
+}
+
+.hideLarge {
+  @media (min-width: 1280px) {
+    display: none !important;
+  }
+}
+
+.showMobile {
+  display: block;
+  
+  @media (min-width: 768px) {
+    display: none !important;
+  }
+}
+
+.showTablet {
+  display: none;
+  
+  @media (min-width: 768px) and (max-width: 1023px) {
+    display: block !important;
+  }
+}
+
+.showDesktop {
+  display: none;
+  
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    display: block !important;
+  }
+}
+
+.showLarge {
+  display: none;
+  
+  @media (min-width: 1280px) {
+    display: block !important;
+  }
+}
+
+// Responsive text alignment
+.textCenterMobile {
+  text-align: center;
+  
+  @media (min-width: 768px) {
+    text-align: left;
+  }
+}
+
+.textCenterTablet {
+  @media (min-width: 768px) and (max-width: 1023px) {
+    text-align: center;
+  }
+}
+
+// Safe area adjustments
+@supports (padding: max(0px)) {
+  .withSafeArea {
+    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
+    padding-top: max(var(--spacing-md), env(safe-area-inset-top));
+    padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom));
+  }
+}
+
+// Print styles
+@media print {
+  .layout {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .hidePrint {
+    display: none !important;
+  }
+  
+  .showPrint {
+    display: block !important;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .layout {
+    border: 2px solid currentColor;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .layout,
+  .responsiveGrid,
+  .responsiveImage {
+    transition: none;
+    animation: none;
+  }
+}
+
+// Dark mode specific adjustments
+:global([data-mode="dark"]) {
+  .layout {
+    color-scheme: dark;
+  }
+}
+
+// Orientation specific styles
+@media (orientation: landscape) {
+  .landscapeOnly {
+    display: block;
+  }
+  
+  .portraitOnly {
+    display: none;
+  }
+}
+
+@media (orientation: portrait) {
+  .landscapeOnly {
+    display: none;
+  }
+  
+  .portraitOnly {
+    display: block;
+  }
+}
+
+// Touch vs mouse interactions
+@media (hover: hover) and (pointer: fine) {
+  .hoverEffects {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .touchEffects {
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}

@@ -18,19 +18,51 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
+  
+  @media (min-width: 768px) {
+    padding: var(--spacing-lg);
+  }
+  
+  // On mobile, use flex-end to push modal towards bottom for easier thumb access
+  @media (max-width: 767px) {
+    align-items: flex-end;
+    padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom, var(--spacing-md)));
+    
+    // On very small screens, use full height
+    @media (max-height: 600px) {
+      align-items: stretch;
+      padding: var(--spacing-sm);
+    }
+  }
 }
 
 .modal {
   background-color: var(--color-surface);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
   border: 1px solid var(--color-border);
-  max-height: 90vh;
-  overflow-y: auto;
   position: relative;
-
-  // Scrollbar styling
+  display: flex;
+  flex-direction: column;
+  
+  // Mobile-first approach
+  width: 100%;
+  max-height: 90vh;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0; // Rounded top only on mobile
+  
+  @media (min-width: 640px) {
+    border-radius: var(--radius-xl);
+    max-height: 85vh;
+  }
+  
+  @media (min-width: 768px) {
+    max-height: 80vh;
+  }
+  
+  // Improved scrollbar styling
+  overflow-y: auto;
+  
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -48,54 +80,315 @@
       background: var(--color-accent);
     }
   }
+  
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text-muted) var(--color-surface-muted);
 }
 
-// Sizes
+// Responsive size variants
 .sm {
-  width: 100%;
-  max-width: 400px;
+  @media (min-width: 640px) {
+    width: 100%;
+    max-width: 400px;
+  }
 }
 
 .md {
-  width: 100%;
-  max-width: 600px;
+  @media (min-width: 640px) {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  @media (min-width: 768px) {
+    max-width: 600px;
+  }
 }
 
 .lg {
-  width: 100%;
-  max-width: 800px;
+  @media (min-width: 640px) {
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  @media (min-width: 768px) {
+    max-width: 700px;
+  }
+  
+  @media (min-width: 1024px) {
+    max-width: 800px;
+  }
 }
 
 .xl {
-  width: 100%;
-  max-width: 1000px;
+  @media (min-width: 640px) {
+    width: 100%;
+    max-width: 700px;
+  }
+  
+  @media (min-width: 768px) {
+    max-width: 800px;
+  }
+  
+  @media (min-width: 1024px) {
+    max-width: 900px;
+  }
+  
+  @media (min-width: 1280px) {
+    max-width: 1000px;
+  }
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
   border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  
+  @media (min-width: 768px) {
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
+  }
+  
+  // Mobile-specific improvements
+  @media (max-width: 767px) {
+    position: sticky;
+    top: 0;
+    background: var(--color-surface);
+    backdrop-filter: blur(10px);
+    z-index: 1;
+  }
 }
 
 .title {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--color-text);
   margin: 0;
+  flex: 1;
+  
+  @media (min-width: 768px) {
+    font-size: var(--font-size-xl);
+  }
+  
+  // Responsive text truncation
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .closeButton {
   flex-shrink: 0;
+  width: clamp(32px, 7vw, 40px);
+  height: clamp(32px, 7vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    background: var(--color-surface-muted);
+    color: var(--color-text);
+  }
+  
+  // Touch feedback for mobile
+  @media (hover: none) and (pointer: coarse) {
+    &:active {
+      background: var(--color-surface-muted);
+      transform: scale(0.95);
+    }
+  }
+  
+  svg {
+    font-size: var(--font-size-md);
+    
+    @media (min-width: 768px) {
+      font-size: var(--font-size-lg);
+    }
+  }
 }
 
 .content {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-md);
+  flex: 1;
+  overflow-y: auto;
+  
+  @media (min-width: 768px) {
+    padding: var(--spacing-xl);
+  }
+  
+  // Ensure content is accessible on mobile
+  @media (max-width: 767px) {
+    // Add bottom padding for safe area
+    padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom, var(--spacing-md)));
+  }
 }
 
-// Dark mode
-[data-theme="dark"] .modal {
+// Form-specific modal improvements
+.content {
+  // Form styling within modal
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    
+    @media (min-width: 768px) {
+      gap: var(--spacing-lg);
+    }
+  }
+  
+  // Button groups in modal
+  .formActions,
+  .modalActions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+    
+    @media (min-width: 768px) {
+      gap: var(--spacing-md);
+      justify-content: flex-end;
+    }
+    
+    // Stack buttons vertically on mobile
+    @media (max-width: 480px) {
+      flex-direction: column-reverse;
+      
+      button {
+        width: 100%;
+      }
+    }
+    
+    // Side by side on larger mobile screens
+    @media (min-width: 481px) and (max-width: 767px) {
+      justify-content: stretch;
+      
+      button {
+        flex: 1;
+      }
+    }
+  }
+}
+
+// Loading state
+.modal.loading {
+  pointer-events: none;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  :global([data-theme="dark"]) & {
+    &::after {
+      background: rgba(0, 0, 0, 0.8);
+    }
+  }
+}
+
+// Dark mode adjustments
+:global([data-theme="dark"]) .modal {
   background-color: var(--color-surface);
   border-color: var(--color-border);
+  
+  .header {
+    background-color: var(--color-surface);
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .modal {
+    border-width: 2px;
+  }
+  
+  .header {
+    border-bottom-width: 2px;
+  }
+}
+
+// Landscape orientation on mobile
+@media (max-height: 500px) and (orientation: landscape) {
+  .overlay {
+    align-items: center;
+    padding: var(--spacing-sm);
+  }
+  
+  .modal {
+    max-height: 95vh;
+    border-radius: var(--radius-lg);
+  }
+  
+  .header {
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+  }
+  
+  .content {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .modal {
+    transition: none;
+  }
+}
+
+// Print styles - hide modals when printing
+@media print {
+  .portal {
+    display: none !important;
+  }
+}
+
+// Focus trap improvements for accessibility
+.modal {
+  &:focus {
+    outline: none;
+  }
+  
+  // Ensure first focusable element is easily accessible
+  input:first-child,
+  textarea:first-child,
+  select:first-child,
+  button:first-child {
+    &:focus {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Improved animation performance
+.overlay,
+.modal {
+  will-change: transform, opacity;
+}
+
+// Safe area adjustments for devices with notches
+@supports (padding: max(0px)) {
+  .overlay {
+    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
+  }
+  
+  .content {
+    @media (max-width: 767px) {
+      padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom, var(--spacing-md)));
+    }
+  }
 }
